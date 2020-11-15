@@ -3,43 +3,40 @@ using namespace std;
 
 rotation_accelerometer::rotation_accelerometer()
 {
+    this->_input_port_0 = new InputPort(ports_id::IP_0_IMU, this);
+    this->_input_port_1 = new InputPort(ports_id::IP_1_ROLL, this);
+    this->_input_port_2 = new InputPort(ports_id::IP_2_PITCH, this);
+    this->_input_port_3 = new InputPort(ports_id::IP_3_YAW, this);
+    this->_output_port = new OutputPort(ports_id::OP_0_DATA, this);
+    _ports = {_input_port_0, _input_port_1,_input_port_2,_input_port_3, _output_port};
 }
 
 rotation_accelerometer::~rotation_accelerometer()
 {
 }
 
-void rotation_accelerometer::receiveMsgData(DataMessage *t_msg, int t_channel)
-{
 
-    if (t_msg->getType() == msg_type::VECTOR3D)
+void rotation_accelerometer::process(DataMsg* t_msg, Port* t_port) {
+    Vector3DMsg *provider = (Vector3DMsg *)t_msg;
+    if(t_port->getID() == ports_id::IP_0_IMU)
     {
-        Vector3DMessage *provider = (Vector3DMessage *)t_msg;
-
-        if (t_channel == receiving_channels::accelerometer)
-        {
-            accelerometer_data.x = provider->getData().x;
-            accelerometer_data.y = provider->getData().y;
-            accelerometer_data.z = provider->getData().z;
-
-            std::cout<<"accelerometer_data.x="<<accelerometer_data.x<<"/n";
-            std::cout<<"accelerometer_data.y="<<accelerometer_data.y<<"/n";
-            std::cout<<"accelerometer_data.z="<<accelerometer_data.z<<"/n";
-        }
-  
-        else if (t_channel == receiving_channels::ch_roll)
-        {
-            drone_orientation.x =provider->getData().x;
-        }
-        else if (t_channel == receiving_channels::ch_pitch)
-        {
-            drone_orientation.y = provider->getData().x;
-        }
-        else if (t_channel == receiving_channels::ch_yaw)
-        {
-            drone_orientation.z = provider->getData().x;
-            update_rotation_matrices();
-        }
+        accelerometer_data.x = provider->data.x;
+        accelerometer_data.y = provider->data.y;
+        accelerometer_data.z = provider->data.z;
+        
+    }
+    else if(t_port->getID() == ports_id::IP_1_ROLL)
+    { 
+        drone_orientation.x =provider->data.x;
+    }
+    else if(t_port->getID() == ports_id::IP_2_PITCH)
+    { 
+        drone_orientation.y =provider->data.x;
+    }
+    else if(t_port->getID() == ports_id::IP_3_YAW)
+    { 
+        drone_orientation.z =provider->data.x;
+        update_rotation_matrices();
     }
 }
 
@@ -66,12 +63,13 @@ Vector3D<float> rotation_accelerometer::Update_accelerometer_vector(MatrixXd R_i
     rotated_acceleration.y =t_results.y;
     rotated_acceleration.z=t_results.z;
 
+    Vector3DMsg point_msg;
+    point_msg.data = rotated_acceleration;
+    this->_output_port->receiveMsgData(&point_msg);
+
     // std::cout<<"Rotated X="<<rotated_acceleration.x<<"\n";
     // std::cout<<"Rotated Y="<<rotated_acceleration.y<<"\n";
     // std::cout<<"Rotated Z="<<rotated_acceleration.z<<"\n";
-
-    all_parameters.setVector3DMessage(rotated_acceleration);
-    this->emitMsgUnicastDefault((DataMessage *)&all_parameters);
 
     return t_results;
 }

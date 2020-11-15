@@ -5,14 +5,13 @@
 #include "rayrotation_events.hpp"
 #include "rotation_accelerometer.hpp"
 #include <opencv2/core/types.hpp>
-#include "common_srv/ROSUnit_Factory.hpp"
+#include "HEAR_ROS_BRIDGE/ROSUnit_Factory.hpp"
 #include "ROSUnit_Optitrack.hpp"
 
 #include <iostream>
 
 int main(int argc, char** argv)
 {
-
 
 ros::init(argc, argv, "ball_detector_node");
 ros::NodeHandle main_nodehandle;
@@ -40,7 +39,7 @@ Circle_detector* detection=new Circle_detector(main_nodehandle);
                                                                   ROSUnit_msg_type::ROSUnit_Point,
                                                                   "/imu/acceleration");
   ROSUnit* rosunit_camera = ROSUnit_Factory_main.CreateROSUnit(ROSUnit_tx_rx_type::Publisher,
-                                                                  ROSUnit_msg_type::ROSUnit_PointUint64,
+                                                                  ROSUnit_msg_type::ROSUnit_Point,
                                                                   "/camera_provider");
   ROSUnit* rosunit_accelerometer = ROSUnit_Factory_main.CreateROSUnit(ROSUnit_tx_rx_type::Publisher,
                                                                   ROSUnit_msg_type::ROSUnit_Point,
@@ -50,34 +49,23 @@ Circle_detector* detection=new Circle_detector(main_nodehandle);
   rayrotation_events* rotate_pv = new rayrotation_events();
   rotation_accelerometer* rotate_accelerometer = new rotation_accelerometer();
 
-  rosunit_x_provider->setEmittingChannel((int)rayrotation_events::receiving_channels::ch_x);
-  rosunit_y_provider->setEmittingChannel((int)rayrotation_events::receiving_channels::ch_y);
-  position_in_z->setEmittingChannel((int)rayrotation_events::receiving_channels::ch_z);
-  rosunit_roll_provider->setEmittingChannel((int)rayrotation_events::receiving_channels::ch_roll);
-  rosunit_pitch_provider->setEmittingChannel((int)rayrotation_events::receiving_channels::ch_pitch);
-  rosunit_yaw_provider->setEmittingChannel((int)rayrotation_events::receiving_channels::ch_yaw);
-  rosunit_roll_provider->setEmittingChannel((int)rotation_accelerometer::receiving_channels::ch_roll);
-  rosunit_pitch_provider->setEmittingChannel((int)rotation_accelerometer::receiving_channels::ch_pitch);
-  rosunit_yaw_provider->setEmittingChannel((int)rotation_accelerometer::receiving_channels::ch_yaw);
-  detection->setEmittingChannel((int)rayrotation_events::receiving_channels::camera);
-  rosunit_imu_acceleration->setEmittingChannel((int)rotation_accelerometer::receiving_channels::accelerometer);
+  detection->getPorts()[(int)Circle_detector::ports_id::OP_0_DATA]->connect(rotate_pv->getPorts()[(int)rayrotation_events::ports_id::IP_0_CAMERA]);
+  rosunit_x_provider->getPorts()[(int)ROSUnit_PointSub::ports_id::OP_0]->connect(rotate_pv->getPorts()[(int)rayrotation_events::ports_id::IP_1_X_POSITION]);
+  rosunit_y_provider->getPorts()[(int)ROSUnit_PointSub::ports_id::OP_0]->connect(rotate_pv->getPorts()[(int)rayrotation_events::ports_id::IP_2_Y_POSITION]);
+  position_in_z->getPorts()[(int)ROSUnit_PointSub::ports_id::OP_0]->connect(rotate_pv->getPorts()[(int)rayrotation_events::ports_id::IP_3_Z_POSITION]);
+  rosunit_roll_provider->getPorts()[(int)ROSUnit_PointSub::ports_id::OP_0]->connect(rotate_pv->getPorts()[(int)rayrotation_events::ports_id::IP_4_ROLL]);
+  rosunit_pitch_provider->getPorts()[(int)ROSUnit_PointSub::ports_id::OP_0]->connect(rotate_pv->getPorts()[(int)rayrotation_events::ports_id::IP_5_PITCH]);
+  rosunit_yaw_provider->getPorts()[(int)ROSUnit_PointSub::ports_id::OP_0]->connect(rotate_pv->getPorts()[(int)rayrotation_events::ports_id::IP_6_YAW]);
 
+  rotate_pv->getPorts()[(int)rayrotation_events::ports_id::OP_0_DATA]->connect(rosunit_camera->getPorts()[(int)ROSUnit_PointPub::ports_id::IP_0]);
 
+  rosunit_imu_acceleration->getPorts()[(int)ROSUnit_PointSub::ports_id::OP_0]->connect(rotate_pv->getPorts()[(int)rotation_accelerometer::ports_id::IP_0_IMU]);
+  rosunit_roll_provider->getPorts()[(int)ROSUnit_PointSub::ports_id::OP_0]->connect(rotate_pv->getPorts()[(int)rotation_accelerometer::ports_id::IP_1_ROLL]);
+  rosunit_pitch_provider->getPorts()[(int)ROSUnit_PointSub::ports_id::OP_0]->connect(rotate_pv->getPorts()[(int)rotation_accelerometer::ports_id::IP_2_PITCH]);
+  rosunit_yaw_provider->getPorts()[(int)ROSUnit_PointSub::ports_id::OP_0]->connect(rotate_pv->getPorts()[(int)rotation_accelerometer::ports_id::IP_3_YAW]);
 
-  rosunit_x_provider->addCallbackMsgReceiver((MsgReceiver*)rotate_pv);
-  rosunit_y_provider->addCallbackMsgReceiver((MsgReceiver*)rotate_pv);
-  position_in_z->addCallbackMsgReceiver((MsgReceiver*)rotate_pv);
-  rosunit_roll_provider->addCallbackMsgReceiver((MsgReceiver*)rotate_pv);
-  rosunit_roll_provider->addCallbackMsgReceiver((MsgReceiver*)rotate_accelerometer);
-  rosunit_pitch_provider->addCallbackMsgReceiver((MsgReceiver*)rotate_pv);
-  rosunit_pitch_provider->addCallbackMsgReceiver((MsgReceiver*)rotate_accelerometer);
-  rosunit_yaw_provider->addCallbackMsgReceiver((MsgReceiver*)rotate_pv);
-  rosunit_yaw_provider->addCallbackMsgReceiver((MsgReceiver*)rotate_accelerometer);
-  detection->addCallbackMsgReceiver((MsgReceiver*)rotate_pv);
-  rotate_pv->addCallbackMsgReceiver((MsgReceiver*)rosunit_camera);
-  rosunit_imu_acceleration->addCallbackMsgReceiver((MsgReceiver*)rotate_accelerometer);
-  rotate_accelerometer->addCallbackMsgReceiver((MsgReceiver*)rosunit_accelerometer);
-
+  rotate_accelerometer->getPorts()[(int)rotation_accelerometer::ports_id::OP_0_DATA]->connect(rosunit_accelerometer->getPorts()[(int)ROSUnit_PointPub::ports_id::IP_0]);
+  
 
 
   ros::Rate r(200);

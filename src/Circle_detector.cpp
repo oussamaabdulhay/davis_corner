@@ -6,6 +6,10 @@ Circle_detector::Circle_detector(ros::NodeHandle &main_nodehandle)
     : it_(nh_)
 {
     nh_=main_nodehandle;
+
+    this->_output_port = new OutputPort(ports_id::OP_0_DATA, this);
+    _ports = {_output_port};
+
     image_sub_ = it_.subscribe("/EventsImage", 1000,&Circle_detector::imageCb, this);
     puby = nh_.advertise<std_msgs::Float32>("camera_provider_y", 1000);
     pubx = nh_.advertise<std_msgs::Float32>("camera_provider_x", 1000);
@@ -66,6 +70,9 @@ void Circle_detector::imageCb(const sensor_msgs::ImageConstPtr &msg)
   if (keypoints.size() == 0)
   {
     std::cout << "EMPTY KEYPOINTS\n";
+    Vector2DMsg output_msg;
+    output_msg.data = obj_pos;
+    this->_output_port->receiveMsgData((DataMsg*) &output_msg);
   }
 
   else
@@ -87,10 +94,9 @@ void Circle_detector::imageCb(const sensor_msgs::ImageConstPtr &msg)
          obj_pos.x = _c_.x-173;
          puby.publish(msg_y);
          pubx.publish(msg_x);
-         pixel_location.setVector2DMsg(obj_pos);
-        this->emitMsgUnicastDefault((DataMessage *)&pixel_location);
-         
-
+        Vector2DMsg output_msg;
+        output_msg.data = obj_pos;
+        this->_output_port->receiveMsgData((DataMsg*) &output_msg);
       }
 
        else
@@ -104,8 +110,9 @@ void Circle_detector::imageCb(const sensor_msgs::ImageConstPtr &msg)
          puby.publish(msg_y);
          pubx.publish(msg_x);
          point_of_interest = sqrt((pow(_c_.x, 2)) + (_c_.y, 2));
-         pixel_location.setVector2DMsg(obj_pos);
-         this->emitMsgUnicastDefault((DataMessage *)&pixel_location);
+         Vector2DMsg output_msg;
+         output_msg.data = obj_pos;
+         this->_output_port->receiveMsgData((DataMsg*) &output_msg);
        }
     temp.erase(temp.begin());
     }

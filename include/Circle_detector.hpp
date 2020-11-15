@@ -12,13 +12,17 @@
 #include <iostream>
 #include "medianFilter.hpp"
 #include <opencv2/features2d.hpp>
-#include "common_srv/Vector2D.hpp"
-#include "common_srv/Vector2DMsg.hpp"
-#include "common_srv/MsgEmitter.hpp"
-#include "common_srv/MsgReceiver.hpp"
+#include "HEAR_core/InputPort.hpp"
+#include "HEAR_core/OutputPort.hpp"
+#include "HEAR_math/Vector2D.hpp"
+#include "HEAR_msg/Vector2DMsg.hpp"
+#include "HEAR_core/Block.hpp"
 
-class Circle_detector: public MsgEmitter, public MsgReceiver
+class Circle_detector: public Block
 {
+private:
+    Port* _output_port;
+
 public:
     ros::NodeHandle nh_;
     ros::Publisher puby, pubx;
@@ -33,6 +37,8 @@ public:
     std::vector<cv::KeyPoint> keypoints;
     medianFilter* filter=new medianFilter();
     float point_of_interest;
+    enum ports_id {OP_0_DATA};
+    void process(DataMsg* t_msg, Port* t_port){};
     
 
     Circle_detector(ros::NodeHandle&);
