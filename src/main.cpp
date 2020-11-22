@@ -36,7 +36,7 @@ Circle_detector* detection=new Circle_detector(main_nodehandle);
                                                                   ROSUnit_msg_type::ROSUnit_Point,
                                                                   "/providers/yaw");
   ROSUnit* rosunit_imu_acceleration = ROSUnit_Factory_main.CreateROSUnit(ROSUnit_tx_rx_type::Subscriber, 
-                                                                  ROSUnit_msg_type::ROSUnit_Point,
+                                                                  ROSUnit_msg_type::ROSUnit_GeoVec,
                                                                   "/imu/acceleration");
   ROSUnit* rosunit_camera = ROSUnit_Factory_main.CreateROSUnit(ROSUnit_tx_rx_type::Publisher,
                                                                   ROSUnit_msg_type::ROSUnit_Point,

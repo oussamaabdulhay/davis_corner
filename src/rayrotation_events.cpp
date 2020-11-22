@@ -49,7 +49,7 @@ void rayrotation_events::process(DataMsg* t_msg, Port* t_port) {
     }
     else if(t_port->getID() == ports_id::IP_3_Z_POSITION)
     { 
-        drone_position.z = provider->data.x;
+        drone_position.z = provider->data.z;
     }
     else if(t_port->getID() == ports_id::IP_4_ROLL)
     { 
