@@ -23,6 +23,10 @@ void rotation_accelerometer::process(DataMsg* t_msg, Port* t_port) {
         accelerometer_data.x = provider->data.x;
         accelerometer_data.y = provider->data.y;
         accelerometer_data.z = provider->data.z;
+    
+        // std::cout<<"x="<<provider->data.x<<"\n";
+        // std::cout<<"y="<<provider->data.y<<"\n";
+        // std::cout<<"z="<<provider->data.z<<"\n";
         
     }
     else if(t_port->getID() == ports_id::IP_1_ROLL)
@@ -32,11 +36,12 @@ void rotation_accelerometer::process(DataMsg* t_msg, Port* t_port) {
     else if(t_port->getID() == ports_id::IP_2_PITCH)
     { 
         drone_orientation.y =provider->data.x;
+        update_rotation_matrices();
+        
     }
     else if(t_port->getID() == ports_id::IP_3_YAW)
     { 
         drone_orientation.z =provider->data.x;
-        update_rotation_matrices();
     }
 }
 
@@ -47,6 +52,8 @@ void rotation_accelerometer::update_rotation_matrices()
     MatrixXd R_inertia(3, 3);
 
     R_inertia = R_drone_origin.Update(drone_orientation);
+
+    R_inertia=R_inertia.inverse();
 
     rotated_unit_vector = Update_accelerometer_vector(R_inertia);
 
@@ -62,6 +69,8 @@ Vector3D<float> rotation_accelerometer::Update_accelerometer_vector(MatrixXd R_i
     rotated_acceleration.x=t_results.x;
     rotated_acceleration.y =t_results.y;
     rotated_acceleration.z=t_results.z;
+
+
 
     Vector3DMsg point_msg;
     point_msg.data = rotated_acceleration;
