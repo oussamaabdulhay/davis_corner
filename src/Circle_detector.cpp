@@ -70,6 +70,8 @@ void Circle_detector::imageCb(const sensor_msgs::ImageConstPtr &msg)
   if (keypoints.size() == 0)
   {
     std::cout << "EMPTY KEYPOINTS\n";
+    puby.publish(msg_y);
+    pubx.publish(msg_x);
     Vector2DMsg output_msg;
     output_msg.data = obj_pos;
     this->_output_port->receiveMsgData((DataMsg*) &output_msg);

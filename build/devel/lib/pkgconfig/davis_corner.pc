@@ -1,0 +1,8 @@
+prefix=/home/ku-t2/catkin_ws_eventcamera/src/davis_corner/build/devel
+
+Name: davis_corner
+Description: Description of davis_corner
+Version: 0.0.0
+Cflags: -I/home/ku-t2/catkin_ws_eventcamera/src/davis_corner/build/devel/include
+Libs: -L${prefix}/lib -lrosopencv_t
+Requires: hear_ros_bridge cv_bridge image_transport roscpp sensor_msgs message_runtime std_msgs

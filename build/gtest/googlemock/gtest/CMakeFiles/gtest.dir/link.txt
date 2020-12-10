@@ -1,0 +1,1 @@
+/usr/bin/c++ -fPIC -g  -shared -Wl,-soname,libgtest.so -o libgtest.so CMakeFiles/gtest.dir/src/gtest-all.cc.o  -L/home/ku-t2/catkin_ws_eventcamera/src/davis_corner/build/gtest/googlemock/gtest/src -Wl,-rpath,/home/ku-t2/catkin_ws_eventcamera/src/davis_corner/build/gtest/googlemock/gtest/src -lpthread 

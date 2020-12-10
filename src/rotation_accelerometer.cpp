@@ -76,10 +76,6 @@ Vector3D<float> rotation_accelerometer::Update_accelerometer_vector(MatrixXd R_i
     point_msg.data = rotated_acceleration;
     this->_output_port->receiveMsgData(&point_msg);
 
-    // std::cout<<"Rotated X="<<rotated_acceleration.x<<"\n";
-    // std::cout<<"Rotated Y="<<rotated_acceleration.y<<"\n";
-    // std::cout<<"Rotated Z="<<rotated_acceleration.z<<"\n";
-
     return t_results;
 }
 

@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/ku-t2/catkin_ws_eventcamera/src/davis_corner/build/devel/setup.sh
